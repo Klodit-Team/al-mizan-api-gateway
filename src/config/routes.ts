@@ -372,7 +372,7 @@ export const routesConfig: RoutesConfig = {
           method: 'POST',
           auth: true,
           roles: [Role.SERVICE_CONTRACTANT, Role.ADMIN],
-          description: 'Create a commission',
+          description: 'Create a commission' ,
         },
         {
           path: '/:id/sessions',
