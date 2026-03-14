@@ -8,7 +8,7 @@ import logger from '../utils/logger';
  */
 export async function fetchUserRoles(userId: string): Promise<Role[] | null> {
   try {
-    const url = `${config.usersServiceUrl}/users/${userId}/roles`;
+    const url = `${config.usersServiceUrl}/api/v1/user-roles/${userId}`;
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -26,8 +26,21 @@ export async function fetchUserRoles(userId: string): Promise<Role[] | null> {
       return null;
     }
 
-    const data = await response.json() as { roles: Role[] };
-    return data.roles;
+    const data = await response.json() as Array<{
+      role?: {
+        name?: string;
+      };
+    }>;
+
+    if (!Array.isArray(data)) {
+      return null;
+    }
+
+    const roles = data
+      .map((item) => item.role?.name)
+      .filter((name): name is Role => !!name && Object.values(Role).includes(name as Role));
+
+    return roles;
   } catch (error) {
     logger.error('Failed to fetch user roles from users service', {
       userId,
@@ -42,7 +55,7 @@ export async function fetchUserRoles(userId: string): Promise<Role[] | null> {
  */
 export async function fetchUserPermissions(userId: string): Promise<string[] | null> {
   try {
-    const url = `${config.usersServiceUrl}/users/${userId}/permissions`;
+    const url = `${config.usersServiceUrl}/api/v1/user-roles/${userId}`;
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -56,8 +69,9 @@ export async function fetchUserPermissions(userId: string): Promise<string[] | n
       return null;
     }
 
-    const data = await response.json() as { permissions: string[] };
-    return data.permissions;
+    // Users service does not currently expose fine-grained permissions.
+    // Return an empty array to keep auth flow consistent.
+    return [];
   } catch (error) {
     logger.error('Failed to fetch user permissions from users service', {
       userId,

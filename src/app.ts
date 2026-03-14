@@ -15,6 +15,7 @@ import logger from './utils/logger';
 import { HealthStatus } from './types';
 import { getRedisClient } from './config/redis';
 import { getRabbitMQChannel } from './config/rabbitmq';
+import { registerSwagger } from './docs/swagger';
 
 export function createApp(): express.Application {
   const app = express();
@@ -101,6 +102,9 @@ export function createApp(): express.Application {
   app.get('/ready', (_req, res) => {
     res.status(200).json({ ready: true });
   });
+
+  // ─── Swagger / OpenAPI Documentation ────────────────────────────────────
+  registerSwagger(app);
 
   // ─── Proxy Router (all microservice routes) ──────────────────────────────
   app.use(createProxyRouter());

@@ -1,4 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
+import { IncomingMessage } from 'http';
 import { createProxyMiddleware, Options } from 'http-proxy-middleware';
 import { loadRoutes } from './loadRoutes';
 import { AuthenticatedRequest, RouteConfig, Role } from '../types';
@@ -43,15 +44,38 @@ export function createProxyRouter(): Router {
 
   // Set up proxies for each service base path
   for (const [basePath, route] of serviceRoutes) {
+    const rewritePath = (path: string, req: IncomingMessage): string => {
+      let rewrittenPath = (req as AuthenticatedRequest).originalUrl || path;
+
+      if (route.pathRewrite) {
+        for (const [pattern, replacement] of Object.entries(route.pathRewrite)) {
+          rewrittenPath = rewrittenPath.replace(new RegExp(pattern), replacement);
+        }
+      }
+
+      return rewrittenPath;
+    };
+
     const proxyOptions: Options = {
       target: route.target,
       changeOrigin: true,
-      pathRewrite: route.pathRewrite || undefined,
+      pathRewrite: rewritePath,
       timeout: config.requestTimeout,
       proxyTimeout: config.requestTimeout,
       on: {
         proxyReq: (proxyReq, req) => {
           const authReq = req as AuthenticatedRequest;
+          const forwardedPath = rewritePath(req.url ?? '', req);
+          const forwardedUrl = new URL(forwardedPath, route.target).toString();
+
+          logger.info('Proxy forwarding request', {
+            requestId: authReq.requestId,
+            method: req.method,
+            originalUrl: authReq.originalUrl,
+            forwardedUrl,
+            target: route.target,
+          });
+
           // Forward user info to downstream services
           if (authReq.user) {
             proxyReq.setHeader('X-User-Id', authReq.user.userId);

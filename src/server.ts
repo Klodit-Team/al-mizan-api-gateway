@@ -28,6 +28,8 @@ async function bootstrap(): Promise<void> {
     logger.info(`  API Gateway is running on port ${config.port}`);
     logger.info(`  Health: http://localhost:${config.port}/health`);
     logger.info(`  Ready:  http://localhost:${config.port}/ready`);
+    logger.info(`  Docs:   http://localhost:${config.port}/docs`);
+    logger.info(`  OpenAPI JSON: http://localhost:${config.port}/docs.json`);
     logger.info('═══════════════════════════════════════════════════════════');
   });
 
