@@ -19,6 +19,7 @@ import { registerSwagger } from './docs/swagger';
 
 export function createApp(): express.Application {
   const app = express();
+  const allowedOrigins = new Set(config.corsOrigins);
 
   // ─── Trust proxy (for X-Forwarded-For, needed behind nginx/k8s) ──────────
   app.set('trust proxy', 1);
@@ -31,7 +32,31 @@ export function createApp(): express.Application {
 
   // ─── CORS ────────────────────────────────────────────────────────────────
   app.use(cors({
-    origin: config.corsOrigins,
+    origin: (origin, callback) => {
+      // Allow non-browser requests (no Origin header).
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.has(origin)) {
+        return callback(null, true);
+      }
+
+      // In development, allow localhost/127.0.0.1 on any port for local FE dev.
+      if (config.nodeEnv !== 'production') {
+        try {
+          const parsed = new URL(origin);
+          const isLocalhost = parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1';
+          if (isLocalhost && parsed.protocol === 'http:') {
+            return callback(null, true);
+          }
+        } catch {
+          // Fall through to blocked origin.
+        }
+      }
+
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true, // Allow cookies
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
@@ -61,6 +86,22 @@ export function createApp(): express.Application {
 
   // ─── Global Rate Limiter ─────────────────────────────────────────────────
   app.use(globalRateLimiter);
+
+  // ─── Root Endpoint ────────────────────────────────────────────────────────
+  app.get('/', (_req, res) => {
+    res.status(200).json({
+      service: 'AL-Mizan API Gateway',
+      status: 'ok',
+      endpoints: {
+        health: '/health',
+        readiness: '/ready',
+        docs: '/docs',
+        openapi: '/docs.json',
+        apiBase: '/api/v1',
+      },
+      timestamp: new Date().toISOString(),
+    });
+  });
 
   // ─── Health Check Endpoint ───────────────────────────────────────────────
   app.get('/health', (_req, res) => {

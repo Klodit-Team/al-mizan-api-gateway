@@ -1,6 +1,7 @@
 import type { OpenAPIV3 } from 'openapi-types';
 import swaggerUi from 'swagger-ui-express';
 import type { Application } from 'express';
+import { config } from '../config';
 import { routesConfig } from '../config/routes';
 
 function toOpenApiPath(path: string): string {
@@ -37,8 +38,14 @@ export function buildGatewayOpenApiSpec(): OpenAPIV3.Document {
         cookieAuth: {
           type: 'apiKey',
           in: 'cookie',
-          name: 'al_mizan_sid',
-          description: 'Session cookie set by auth service',
+          name: config.authTokenCookieName,
+          description: 'Access token cookie set by auth service',
+        },
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'Access token sent as Authorization: Bearer <token>',
         },
       },
     },
@@ -71,7 +78,7 @@ export function buildGatewayOpenApiSpec(): OpenAPIV3.Document {
           .replace(/^\//, '')
           .replace(/[/:{}-]+/g, '_')}`,
         parameters: inferPathParameters(fullPath),
-        security: shouldAuth ? [{ cookieAuth: [] }] : [],
+        security: shouldAuth ? [{ cookieAuth: [] }, { bearerAuth: [] }] : [],
         responses: {
           '200': {
             description: 'Successful response from downstream service',

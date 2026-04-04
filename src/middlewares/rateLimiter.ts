@@ -1,4 +1,4 @@
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { config } from '../config';
 
 /**
@@ -17,9 +17,15 @@ export const globalRateLimiter = rateLimit({
   },
   keyGenerator: (req) => {
     // Use X-Forwarded-For if behind a reverse proxy, otherwise use IP
-    return (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim()
-      || req.ip
-      || 'unknown';
+    const forwardedFor = (req.headers['x-forwarded-for'] as string | undefined)
+      ?.split(',')[0]
+      ?.trim();
+
+    if (forwardedFor) {
+      return forwardedFor;
+    }
+
+    return ipKeyGenerator(req.ip || req.socket.remoteAddress || 'unknown');
   },
 });
 
@@ -38,9 +44,15 @@ export function createRouteLimiter(maxRequests: number) {
       message: 'Too many requests to this endpoint. Please try again later.',
     },
     keyGenerator: (req) => {
-      return (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim()
-        || req.ip
-        || 'unknown';
+      const forwardedFor = (req.headers['x-forwarded-for'] as string | undefined)
+        ?.split(',')[0]
+        ?.trim();
+
+      if (forwardedFor) {
+        return forwardedFor;
+      }
+
+      return ipKeyGenerator(req.ip || req.socket.remoteAddress || 'unknown');
     },
   });
 }

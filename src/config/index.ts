@@ -43,6 +43,7 @@ export const config = {
   usersServiceUrl: env('USERS_SERVICE_URL', 'http://localhost:3002'),
 
   // ─── Session ───────────────────────────────────────────────────────
+  authTokenCookieName: env('AUTH_TOKEN_COOKIE_NAME', 'access_token'),
   sessionCookieName: env('SESSION_COOKIE_NAME', 'al_mizan_sid'),
   sessionTtlSeconds: envInt('SESSION_TTL_SECONDS', 3600), // 1 hour
   permissionsTtlSeconds: envInt('PERMISSIONS_TTL_SECONDS', 300), // 5 minutes
@@ -52,7 +53,10 @@ export const config = {
   rateLimitMax: envInt('RATE_LIMIT_MAX', 100),
 
   // ─── CORS ──────────────────────────────────────────────────────────
-  corsOrigins: env('CORS_ORIGINS', 'http://localhost:3000,http://localhost:4000').split(','),
+  corsOrigins: env('CORS_ORIGINS', 'http://localhost:3000,http://localhost:4000')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
 
   // ─── Logging ───────────────────────────────────────────────────────
   logLevel: env('LOG_LEVEL', 'info'),
