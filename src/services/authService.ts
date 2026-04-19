@@ -1,5 +1,5 @@
 import { config } from '../config';
-import { Session } from '../types';
+import { Role, Session } from '../types';
 import logger from '../utils/logger';
 
 interface AuthMeResponse {
@@ -8,12 +8,48 @@ interface AuthMeResponse {
     email?: string;
     iat?: number;
     exp?: number;
+    role?: string;
+    userType?: string;
   };
 }
 
 interface TokenValidationContext {
   ip?: string;
   userAgent?: string;
+}
+
+function normalizeRole(value: unknown): Role | null {
+  if (typeof value !== 'string') {
+    return null;
+  }
+
+  const normalized = value
+    .trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[\s-]+/g, '_')
+    .toUpperCase();
+
+  if (normalized === 'ADMIN') return Role.ADMIN;
+  if (
+    normalized === 'SERVICE_CONTRACTANT'
+    || normalized === 'CONTRACTANT'
+    || normalized === 'SERVICECONTRACTANT'
+  ) {
+    return Role.SERVICE_CONTRACTANT;
+  }
+  if (
+    normalized === 'OPERATEUR_ECONOMIQUE'
+    || normalized === 'OPERATEUR'
+    || normalized === 'OPERATEURECONOMIQUE'
+    || (normalized.includes('OPERATEUR') && normalized.includes('ECONOM'))
+  ) {
+    return Role.OPERATEUR_ECONOMIQUE;
+  }
+  if (normalized === 'MEMBRE_COMMISSION') return Role.MEMBRE_COMMISSION;
+  if (normalized === 'CONTROLEUR') return Role.CONTROLEUR;
+
+  return null;
 }
 
 /**
@@ -61,10 +97,12 @@ export async function validateAccessToken(
       ? new Date(user.exp * 1000).toISOString()
       : new Date(now + (config.sessionTtlSeconds * 1000)).toISOString();
 
+    const resolvedRole = normalizeRole(user.role) ?? normalizeRole(user.userType);
+
     return {
       userId: user.userId,
       email: user.email,
-      roles: [],
+      roles: resolvedRole ? [resolvedRole] : [],
       permissions: [],
       ip: context?.ip || 'unknown',
       userAgent: context?.userAgent || 'unknown',

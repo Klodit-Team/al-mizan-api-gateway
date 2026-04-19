@@ -55,6 +55,8 @@ export interface RouteConfig {
   rateLimit?: number;
   /** Optional path rewrite rules */
   pathRewrite?: Record<string, string>;
+  /** Forward authenticated user context in JSON body for downstream permission checks */
+  forwardAuthInBody?: boolean;
   /** HTTP methods allowed (empty = all) */
   methods?: string[];
   /** Description for documentation */
@@ -79,6 +81,7 @@ export interface ServiceConfig {
   roles?: string[];
   rateLimit?: number;
   pathRewrite?: Record<string, string>;
+  forwardAuthInBody?: boolean;
   routes?: ServiceRouteOverride[];
   description?: string;
 }
@@ -89,6 +92,7 @@ export interface ServiceRouteOverride {
   auth: boolean;
   public?: boolean;
   roles?: string[];
+  forwardAuthInBody?: boolean;
   description?: string;
 }
 

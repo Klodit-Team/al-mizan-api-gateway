@@ -71,6 +71,10 @@ export function createApp(): express.Application {
   // ─── Cookie Parser ───────────────────────────────────────────────────────
   app.use(cookieParser());
 
+  // ─── Body Parsers (required for proxy body augmentation) ────────────────
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
   // ─── Request ID ──────────────────────────────────────────────────────────
   app.use(requestIdMiddleware);
 

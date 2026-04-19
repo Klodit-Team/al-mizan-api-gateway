@@ -48,6 +48,69 @@ export function buildGatewayOpenApiSpec(): OpenAPIV3.Document {
           description: 'Access token sent as Authorization: Bearer <token>',
         },
       },
+      schemas: {
+        RegisterBaseRequest: {
+          type: 'object',
+          required: ['email', 'password', 'role', 'nom', 'prenom', 'denomination', 'type'],
+          properties: {
+            email: { type: 'string', format: 'email' },
+            password: { type: 'string', minLength: 8 },
+            role: {
+              type: 'string',
+              enum: ['SERVICE_CONTRACTANT', 'OPERATEUR_ECONOMIQUE'],
+            },
+            langue: { type: 'string', enum: ['fr', 'ar'] },
+            nom: { type: 'string' },
+            prenom: { type: 'string' },
+            telephone: { type: 'string' },
+            denomination: { type: 'string' },
+            nif: { type: 'string' },
+            nis: { type: 'string' },
+            registre_commerce: { type: 'string' },
+            adresse: { type: 'string' },
+            wilaya: { type: 'string' },
+            commune: { type: 'string' },
+            type: {
+              type: 'string',
+              enum: ['EPA', 'EPIC', 'MINISTERE', 'ENTREPRISE_PRIVEE', 'ENTREPRISE_PUBLIQUE', 'GROUPEMENT'],
+            },
+          },
+        },
+        RegisterServiceContractantRequest: {
+          allOf: [
+            { $ref: '#/components/schemas/RegisterBaseRequest' },
+            {
+              type: 'object',
+              required: ['code_service'],
+              properties: {
+                code_service: { type: 'string' },
+                secteur_activite: { type: 'string' },
+                ordonnateur: { type: 'string' },
+              },
+            },
+          ],
+        },
+        RegisterOperateurEconomiqueRequest: {
+          allOf: [
+            { $ref: '#/components/schemas/RegisterBaseRequest' },
+            {
+              type: 'object',
+              properties: {
+                qualifications: { type: 'string' },
+                categories: { type: 'string' },
+              },
+            },
+          ],
+        },
+        RegisterResponse: {
+          type: 'object',
+          required: ['message', 'user_id'],
+          properties: {
+            message: { type: 'string' },
+            user_id: { type: 'string' },
+          },
+        },
+      },
     },
   };
 
@@ -71,6 +134,11 @@ export function buildGatewayOpenApiSpec(): OpenAPIV3.Document {
 
       const shouldAuth = (route.public ?? false) ? false : (route.auth ?? service.auth ?? true);
 
+      const isAuthRegisterRoute =
+        serviceName === 'auth' &&
+        route.method.toUpperCase() === 'POST' &&
+        route.path === '/register';
+
       (spec.paths[fullPath] as OpenAPIV3.PathItemObject)[method] = {
         tags: [serviceName],
         summary: route.description || `${serviceName} ${route.method} ${route.path}`,
@@ -79,7 +147,34 @@ export function buildGatewayOpenApiSpec(): OpenAPIV3.Document {
           .replace(/[/:{}-]+/g, '_')}`,
         parameters: inferPathParameters(fullPath),
         security: shouldAuth ? [{ cookieAuth: [] }, { bearerAuth: [] }] : [],
+        requestBody: isAuthRegisterRoute
+          ? {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: {
+                    oneOf: [
+                      { $ref: '#/components/schemas/RegisterServiceContractantRequest' },
+                      { $ref: '#/components/schemas/RegisterOperateurEconomiqueRequest' },
+                    ],
+                  },
+                },
+              },
+            }
+          : undefined,
         responses: {
+          ...(isAuthRegisterRoute
+            ? {
+                '201': {
+                  description: 'Account created successfully',
+                  content: {
+                    'application/json': {
+                      schema: { $ref: '#/components/schemas/RegisterResponse' },
+                    },
+                  },
+                },
+              }
+            : {}),
           '200': {
             description: 'Successful response from downstream service',
           },

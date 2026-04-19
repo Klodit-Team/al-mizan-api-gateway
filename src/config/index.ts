@@ -33,7 +33,7 @@ export const config = {
   redisUrl: env('REDIS_URL', 'redis://localhost:6379'),
 
   // ─── RabbitMQ ──────────────────────────────────────────────────────
-  rabbitmqUrl: env('RABBITMQ_URL', 'amqp://guest:guest@localhost:5672'),
+  rabbitmqUrl: env('RABBITMQ_URL', 'amqp://guest:guest@localhost:5673'),
   rabbitmqAuditExchange: env('RABBITMQ_AUDIT_EXCHANGE', 'audit.events'),
   rabbitmqAuditQueue: env('RABBITMQ_AUDIT_QUEUE', 'audit.action.log'),
   rabbitmqAuditRoutingKey: env('RABBITMQ_AUDIT_ROUTING_KEY', 'audit.action.log'),

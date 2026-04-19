@@ -29,6 +29,7 @@ export function loadRoutes(): { prefix: string; routes: RouteConfig[] } {
       public: serviceConfig.public ?? false,
       rateLimit: serviceConfig.rateLimit,
       pathRewrite: serviceConfig.pathRewrite,
+      forwardAuthInBody: serviceConfig.forwardAuthInBody ?? false,
       description: serviceConfig.description || serviceName,
     };
 
@@ -45,6 +46,8 @@ export function loadRoutes(): { prefix: string; routes: RouteConfig[] } {
           roles: (route.roles as Role[]) || (serviceConfig.roles as Role[]) || [],
           public: route.public ?? serviceConfig.public ?? false,
           rateLimit: serviceConfig.rateLimit,
+          forwardAuthInBody:
+            route.forwardAuthInBody ?? serviceConfig.forwardAuthInBody ?? false,
           methods: route.method ? [route.method] : undefined,
           description: route.description || `${serviceName}:${route.path}`,
         });

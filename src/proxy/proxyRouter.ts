@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { IncomingMessage } from 'http';
-import { createProxyMiddleware, Options } from 'http-proxy-middleware';
+import { createProxyMiddleware, fixRequestBody, Options } from 'http-proxy-middleware';
 import { loadRoutes } from './loadRoutes';
 import { AuthenticatedRequest, RouteConfig, Role } from '../types';
 import {
@@ -11,6 +11,53 @@ import {
 } from '../middlewares';
 import logger from '../utils/logger';
 import { config } from '../config';
+
+function isBodyMethod(method?: string): boolean {
+  const normalized = (method || '').toUpperCase();
+  return normalized === 'POST' || normalized === 'PUT' || normalized === 'PATCH' || normalized === 'DELETE';
+}
+
+function resolveUserType(req: AuthenticatedRequest): string {
+  const userRoles = req.user?.roles ?? [];
+  if (userRoles.length === 0) {
+    return 'AUTHENTICATED';
+  }
+
+  const allowedRoles = req.routeConfig?.roles ?? [];
+  const matched = userRoles.find((role) => allowedRoles.includes(role));
+  return (matched || userRoles[0]) as string;
+}
+
+function injectAuthContextIntoBody(req: AuthenticatedRequest): void {
+  if (!req.routeConfig?.forwardAuthInBody || !req.user || !isBodyMethod(req.method)) {
+    return;
+  }
+
+  const contentTypeHeader = req.headers['content-type'];
+  const contentType = Array.isArray(contentTypeHeader)
+    ? contentTypeHeader.join(';')
+    : (contentTypeHeader || '');
+
+  // Only mutate JSON / urlencoded bodies that were parsed by Express.
+  if (
+    !contentType.includes('application/json') &&
+    !contentType.includes('application/x-www-form-urlencoded')
+  ) {
+    return;
+  }
+
+  const body =
+    req.body && typeof req.body === 'object' && !Array.isArray(req.body)
+      ? (req.body as Record<string, unknown>)
+      : {};
+
+  body.authContext = {
+    userId: req.user.userId,
+    type: resolveUserType(req),
+  };
+
+  req.body = body;
+}
 
 /**
  * Build an Express Router with dynamic proxy routes from routes.ts.
@@ -78,14 +125,19 @@ export function createProxyRouter(): Router {
 
           // Forward user info to downstream services
           if (authReq.user) {
+            const resolvedRole = resolveUserType(authReq);
             proxyReq.setHeader('X-User-Id', authReq.user.userId);
             proxyReq.setHeader('X-User-Email', authReq.user.email);
+            proxyReq.setHeader('X-User-Role', resolvedRole);
             proxyReq.setHeader('X-User-Roles', authReq.user.roles.join(','));
           }
           if (authReq.requestId) {
             proxyReq.setHeader('X-Request-Id', authReq.requestId);
           }
           proxyReq.setHeader('X-Forwarded-By', 'al-mizan-api-gateway');
+
+          injectAuthContextIntoBody(authReq);
+          fixRequestBody(proxyReq, req);
         },
         proxyRes: (_proxyRes, req) => {
           const authReq = req as AuthenticatedRequest;

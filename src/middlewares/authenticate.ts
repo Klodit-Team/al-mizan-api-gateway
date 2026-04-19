@@ -16,16 +16,25 @@ import logger from '../utils/logger';
  *  4. If auth-service confirms → cache in Redis, attach req.user
  *  5. If invalid → 401
  *
- * Routes marked as public skip authentication.
+ * Public routes stay accessible anonymously, but optional auth context is attached
+ * when a valid token is present.
  */
 export function authenticate(
   req: AuthenticatedRequest,
   res: Response,
   next: NextFunction,
 ): void {
-  // Skip auth for routes marked public
+  // Public routes remain accessible anonymously, but if a token is provided
+  // we still resolve user context so downstream services can apply per-user filters.
   if (req.routeConfig?.public) {
-    return next();
+    const optionalAccessToken = extractAccessToken(req);
+    if (!optionalAccessToken) {
+      return next();
+    }
+
+    const optionalSessionCacheKey = buildSessionCacheKey(optionalAccessToken);
+    performOptionalAuth(optionalAccessToken, optionalSessionCacheKey, req, next);
+    return;
   }
 
   // If route config says no auth required, skip
@@ -62,6 +71,45 @@ export function authenticate(
       timestamp: new Date().toISOString(),
     });
   });
+}
+
+function performOptionalAuth(
+  accessToken: string,
+  sessionCacheKey: string,
+  req: AuthenticatedRequest,
+  next: NextFunction,
+): void {
+  performOptionalAuthInternal(accessToken, sessionCacheKey, req)
+    .catch((error) => {
+      logger.warn('Optional auth context could not be resolved for public route', {
+        requestId: req.requestId,
+        error: error instanceof Error ? error.message : error,
+      });
+    })
+    .finally(() => next());
+}
+
+async function performOptionalAuthInternal(
+  accessToken: string,
+  sessionCacheKey: string,
+  req: AuthenticatedRequest,
+): Promise<void> {
+  let session = await getSession(sessionCacheKey);
+
+  if (!session) {
+    session = await validateAccessToken(accessToken, {
+      ip: req.ip,
+      userAgent: req.get('user-agent') || 'unknown',
+    });
+
+    if (!session) {
+      return;
+    }
+
+    await setSession(sessionCacheKey, session, computeSessionTtlSeconds(session));
+  }
+
+  attachUser(req, session);
 }
 
 async function performAuth(
