@@ -96,6 +96,18 @@ async function performOptionalAuthInternal(
 ): Promise<void> {
   let session = await getSession(sessionCacheKey);
 
+  if (session && (!session.roles || session.roles.length === 0)) {
+    const refreshedSession = await validateAccessToken(accessToken, {
+      ip: req.ip,
+      userAgent: req.get('user-agent') || 'unknown',
+    });
+
+    if (refreshedSession) {
+      session = refreshedSession;
+      await setSession(sessionCacheKey, session, computeSessionTtlSeconds(session));
+    }
+  }
+
   if (!session) {
     session = await validateAccessToken(accessToken, {
       ip: req.ip,
@@ -123,6 +135,18 @@ async function performAuth(
   let session = await getSession(sessionCacheKey);
 
   if (session) {
+    if (!session.roles || session.roles.length === 0) {
+      const refreshedSession = await validateAccessToken(accessToken, {
+        ip: req.ip,
+        userAgent: req.get('user-agent') || 'unknown',
+      });
+
+      if (refreshedSession) {
+        session = refreshedSession;
+        await setSession(sessionCacheKey, session, computeSessionTtlSeconds(session));
+      }
+    }
+
     logger.debug('Auth context found in Redis cache', {
       requestId: req.requestId,
       userId: session.userId,
