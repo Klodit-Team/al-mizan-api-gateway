@@ -21,6 +21,6 @@ jobs:
             echo "🚀 Starting Deployment for api-gateway..."
             cd ~/api-gateway
             git pull
-            cd ~/al-mizan-deployment
-            sudo docker-compose up -d --build api-gateway
+            cd ~/al-mizan-deployments
+            docker compose up -d --build api-gateway
             echo "✅ Deployment Successful!"
