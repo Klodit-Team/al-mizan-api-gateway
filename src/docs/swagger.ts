@@ -26,7 +26,7 @@ export function registerSwagger(app: Application): void {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
+      const data: any = await response.json();
       data.servers = [{ url: 'https://api.klodit.app' }];
       res.json(data);
     } catch (error) {

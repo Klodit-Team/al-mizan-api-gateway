@@ -41,6 +41,13 @@ export const config = {
   // ─── Microservice URLs ─────────────────────────────────────────────
   authServiceUrl: env('AUTH_SERVICE_URL', 'http://localhost:3001'),
   usersServiceUrl: env('USERS_SERVICE_URL', 'http://localhost:3002'),
+  tendersServiceUrl: env('TENDERS_SERVICE_URL', 'http://localhost:8003'),
+  submissionsServiceUrl: env('SUBMISSIONS_SERVICE_URL', 'http://localhost:8004'),
+  documentsServiceUrl: env('DOCUMENTS_SERVICE_URL', 'http://localhost:8005'),
+  commissionsServiceUrl: env('COMMISSIONS_SERVICE_URL', 'http://localhost:8007'),
+  evaluationsServiceUrl: env('EVALUATIONS_SERVICE_URL', 'http://localhost:8008'),
+  appealsServiceUrl: env('APPEALS_SERVICE_URL', 'http://localhost:8009'),
+  notificationsServiceUrl: env('NOTIFICATIONS_SERVICE_URL', 'http://localhost:8010'),
 
   // ─── Session ───────────────────────────────────────────────────────
   authTokenCookieName: env('AUTH_TOKEN_COOKIE_NAME', 'access_token'),
