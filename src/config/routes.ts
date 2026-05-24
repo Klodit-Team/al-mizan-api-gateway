@@ -80,6 +80,12 @@ export const routesConfig: RoutesConfig = {
           description: 'Revoke one active session',
         },
         {
+          path: '/users/user-roles/:userId',
+          method: 'GET',
+          auth: true,
+          description: 'List roles assigned to a user (via auth proxy)',
+        },
+        {
           path: '/forgot-password',
           method: 'POST',
           auth: false,
@@ -99,6 +105,12 @@ export const routesConfig: RoutesConfig = {
           auth: false,
           public: true,
           description: 'Reset password using token',
+        },
+        {
+          path: '/change-password',
+          method: 'POST',
+          auth: true,
+          description: 'Change password (authenticated user)',
         },
       ],
     },
@@ -125,6 +137,12 @@ export const routesConfig: RoutesConfig = {
           method: 'GET',
           auth: true,
           description: 'Get profile by user ID',
+        },
+        {
+          path: '/profiles/user/:userId',
+          method: 'PATCH',
+          auth: true,
+          description: 'Update profile by user ID',
         },
         {
           path: '/profiles/:id',
@@ -197,6 +215,20 @@ export const routesConfig: RoutesConfig = {
           method: 'GET',
           auth: true,
           description: 'List services contractants',
+        },
+        {
+          path: '/services-contractants/profile',
+          method: 'GET',
+          auth: true,
+          roles: [Role.SERVICE_CONTRACTANT],
+          description: 'Get own service contractant profile',
+        },
+        {
+          path: '/services-contractants/profile',
+          method: 'PUT',
+          auth: true,
+          roles: [Role.SERVICE_CONTRACTANT],
+          description: 'Update own service contractant profile',
         },
         {
           path: '/services-contractants/:id',
@@ -649,7 +681,7 @@ export const routesConfig: RoutesConfig = {
           path: '/appel-offre/:aoId',
           method: 'GET',
           auth: true,
-          roles: [Role.MEMBRE_COMMISSION, Role.ADMIN, Role.CONTROLEUR],
+          roles: [Role.SERVICE_CONTRACTANT, Role.MEMBRE_COMMISSION, Role.ADMIN, Role.CONTROLEUR],
           description: 'List submissions by appel d\'offre',
         },
         {
@@ -1413,6 +1445,12 @@ export const routesConfig: RoutesConfig = {
           auth: true,
           roles: [Role.ADMIN, Role.CONTROLEUR],
           description: 'Search audit logs',
+        },
+        {
+          path: '/activities',
+          method: 'GET',
+          auth: true,
+          description: 'Get activity feed for dashboard',
         },
         {
           path: '/integrity',
