@@ -8,7 +8,6 @@ export function registerSwagger(app: Application): void {
     const service = req.params.service;
     let targetUrl = '';
 
-    // Map the service name to its internal Swagger JSON endpoint
     switch (service) {
       case 'auth': targetUrl = `${config.authServiceUrl}/api-docs-json`; break;
       case 'users': targetUrl = `${config.usersServiceUrl}/api/docs-json`; break;
@@ -28,10 +27,7 @@ export function registerSwagger(app: Application): void {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      
-      // Force the server URL to point to the API Gateway so the "Try it out" button works
       data.servers = [{ url: 'https://api.klodit.app' }];
-      
       res.json(data);
     } catch (error) {
       res.status(502).json({ 
@@ -42,12 +38,12 @@ export function registerSwagger(app: Application): void {
     }
   });
 
-  // 2. Setup Swagger UI with a Topbar dropdown to select the microservice
+  // 2. Setup Swagger UI with a Topbar dropdown
   app.use(
     '/docs',
     swaggerUi.serve,
     swaggerUi.setup(undefined, {
-      explorer: true, // Enables the dropdown bar
+      explorer: true,
       customSiteTitle: 'AL-Mizan API Documentation',
       swaggerOptions: {
         urls: [
