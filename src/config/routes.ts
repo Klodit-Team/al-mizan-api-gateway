@@ -641,6 +641,27 @@ export const routesConfig: RoutesConfig = {
           roles: [Role.SERVICE_CONTRACTANT],
           description: 'Delete a marche record',
         },
+        {
+          path: '/:aoId/clarifications',
+          method: 'POST',
+          auth: true,
+          roles: [Role.OPERATEUR_ECONOMIQUE],
+          description: 'Submit a clarification request',
+        },
+        {
+          path: '/:aoId/clarifications',
+          method: 'GET',
+          auth: false,
+          public: true,
+          description: 'Get clarification questions and answers',
+        },
+        {
+          path: '/:aoId/clarifications/:id/repondre',
+          method: 'PUT',
+          auth: true,
+          roles: [Role.SERVICE_CONTRACTANT],
+          description: 'Respond to a clarification request',
+        },
       ],
     },
 
