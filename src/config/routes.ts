@@ -614,6 +614,13 @@ export const routesConfig: RoutesConfig = {
           description: 'List marche records',
         },
         {
+          path: '/marches/statistiques',
+          method: 'GET',
+          auth: true,
+          roles: [Role.SERVICE_CONTRACTANT, Role.ADMIN],
+          description: 'Get clotured markets statistics',
+        },
+        {
           path: '/marches/:id',
           method: 'GET',
           auth: true,
