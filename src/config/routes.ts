@@ -264,6 +264,20 @@ export const routesConfig: RoutesConfig = {
           description: 'List operateurs economiques',
         },
         {
+          path: '/operateurs-economiques/profile',
+          method: 'GET',
+          auth: true,
+          roles: [Role.OPERATEUR_ECONOMIQUE],
+          description: 'Get own operateur economique profile',
+        },
+        {
+          path: '/operateurs-economiques/profile',
+          method: 'PUT',
+          auth: true,
+          roles: [Role.OPERATEUR_ECONOMIQUE],
+          description: 'Update own operateur economique profile',
+        },
+        {
           path: '/operateurs-economiques/:id',
           method: 'GET',
           auth: true,
