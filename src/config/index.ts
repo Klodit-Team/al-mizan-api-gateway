@@ -48,6 +48,7 @@ export const config = {
   evaluationsServiceUrl: env('EVALUATIONS_SERVICE_URL', 'http://localhost:8008'),
   appealsServiceUrl: env('APPEALS_SERVICE_URL', 'http://localhost:8009'),
   notificationsServiceUrl: env('NOTIFICATIONS_SERVICE_URL', 'http://localhost:8010'),
+  auditServiceUrl: env('AUDIT_SERVICE_URL', 'http://localhost:3009'),
 
   // ─── Session ───────────────────────────────────────────────────────
   authTokenCookieName: env('AUTH_TOKEN_COOKIE_NAME', 'access_token'),
