@@ -18,6 +18,7 @@ export function registerSwagger(app: Application): void {
       case 'commissions': targetUrl = `${config.commissionsServiceUrl}/api/docs-json`; break;
       case 'appeals': targetUrl = `${config.appealsServiceUrl}/recours-service/v1/docs-json`; break;
       case 'notifications': targetUrl = `${config.notificationsServiceUrl}/notification-service/v1/docs-json`; break;
+      case 'audit': targetUrl = `${config.auditServiceUrl}/api/docs-json`; break; // Expose the audit service raw JSON
       default: return res.status(404).json({ message: 'Service not found' });
     }
 
@@ -55,7 +56,8 @@ export function registerSwagger(app: Application): void {
           { name: "Documents", url: "/docs/json/documents" },
           { name: "Notifications", url: "/docs/json/notifications" },
           { name: "Utilisateurs", url: "/docs/json/users" },
-          { name: "Authentification", url: "/docs/json/auth" }
+          { name: "Authentification", url: "/docs/json/auth" },
+          { name: "Audit & Traçabilité", url: "/docs/json/audit" } // Add dropdown selection
         ]
       }
     })
