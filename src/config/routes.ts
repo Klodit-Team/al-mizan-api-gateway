@@ -1716,6 +1716,27 @@ export const routesConfig: RoutesConfig = {
       ],
     },
 
+    // ─── AI Orchestrator ─────────────────────────────────────────────────────
+    aiOrchestrator: {
+      url: process.env.AI_ORCHESTRATOR_URL || 'http://localhost:3099',
+      path: '/ao',
+      auth: true,
+      roles: [Role.SERVICE_CONTRACTANT],
+      pathRewrite: {
+        '^/api/v1/ao/(.*)$': '/ai/$1',
+      },
+      description: 'AI-assisted features (CDC draft generation)',
+      routes: [
+        {
+          path: '/cdc-draft',
+          method: 'POST',
+          auth: true,
+          roles: [Role.SERVICE_CONTRACTANT],
+          description: 'Generate AI-assisted CDC section draft',
+        },
+      ],
+    },
+
     // ─── Notifications: Health ─────────────────────────────────────────────
     notificationsHealth: {
       url: process.env.NOTIFICATIONS_SERVICE_URL || 'http://localhost:8010',
