@@ -1322,6 +1322,12 @@ export const routesConfig: RoutesConfig = {
       url: process.env.AUDIT_SERVICE_URL || 'http://localhost:3009',
       path: '/audit',
       auth: true,
+      pathRewrite: {
+        '^/api/v1/audit/logs(.*)$': '/audit/logs$1',
+        '^/api/v1/audit/activities(.*)$': '/audit/activities$1',
+        '^/api/v1/audit/integrity(.*)$': '/integrity$1',
+        '^/api/v1/audit/incidents(.*)$': '/incidents$1',
+      },
       description: 'Immutable audit logs, IA incident monitoring',
       routes: [
         {
@@ -1338,11 +1344,18 @@ export const routesConfig: RoutesConfig = {
           description: 'Get activity feed for dashboard',
         },
         {
-          path: '/integrity',
+          path: '/integrity/verify',
           method: 'GET',
           auth: true,
           roles: [Role.ADMIN],
-          description: 'Verify hash chain integrity',
+          description: 'Trigger a manual integrity check',
+        },
+        {
+          path: '/integrity/status',
+          method: 'GET',
+          auth: true,
+          roles: [Role.ADMIN],
+          description: 'Get the latest integrity check report',
         },
         {
           path: '/incidents',
@@ -1353,10 +1366,87 @@ export const routesConfig: RoutesConfig = {
         },
         {
           path: '/incidents/:id/resolve',
-          method: 'PUT',
+          method: 'PATCH',
           auth: true,
           roles: [Role.ADMIN, Role.CONTROLEUR],
           description: 'Resolve AI incident',
+        },
+      ],
+    },
+
+    // ─── Audit Integrity Alias ──────────────────────────────────────────────
+    integrity: {
+      url: process.env.AUDIT_SERVICE_URL || 'http://localhost:3009',
+      path: '/integrity',
+      auth: true,
+      pathRewrite: {
+        '^/api/v1/integrity/verify$': '/integrity/verify',
+        '^/api/v1/integrity/status$': '/integrity/status',
+        '^/api/v1/integrity(.*)$': '/integrity$1',
+      },
+      description: 'Audit chain integrity checks',
+      routes: [
+        {
+          path: '/verify',
+          method: 'GET',
+          auth: true,
+          roles: [Role.ADMIN],
+          description: 'Trigger a manual integrity check',
+        },
+        {
+          path: '/status',
+          method: 'GET',
+          auth: true,
+          roles: [Role.ADMIN],
+          description: 'Get the latest integrity check report',
+        },
+      ],
+    },
+
+    // ─── Audit Incidents Alias ──────────────────────────────────────────────
+    incidents: {
+      url: process.env.AUDIT_SERVICE_URL || 'http://localhost:3009',
+      path: '/incidents',
+      auth: true,
+      pathRewrite: {
+        '^/api/v1/incidents(.*)$': '/incidents$1',
+      },
+      description: 'AI incident monitoring',
+      routes: [
+        {
+          path: '',
+          method: 'GET',
+          auth: true,
+          roles: [Role.ADMIN, Role.CONTROLEUR],
+          description: 'List AI incidents',
+        },
+        {
+          path: '',
+          method: 'POST',
+          auth: true,
+          roles: [Role.ADMIN, Role.CONTROLEUR],
+          description: 'Create AI incident',
+        },
+        {
+          path: '/:id',
+          method: 'GET',
+          auth: true,
+          roles: [Role.ADMIN, Role.CONTROLEUR],
+          description: 'Get AI incident',
+        },
+        {
+          path: '/:id/resolve',
+          method: 'PATCH',
+          auth: true,
+          roles: [Role.ADMIN, Role.CONTROLEUR],
+          description: 'Resolve AI incident',
+        },
+        {
+          path: '/:id/statut',
+          method: 'PATCH',
+          auth: true,
+          roles: [Role.ADMIN, Role.CONTROLEUR],
+          description: 'Update AI incident status',
         },
       ],
     },
