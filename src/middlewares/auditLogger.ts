@@ -22,23 +22,26 @@ export function auditLogger(
     const duration = Date.now() - startTime;
 
     const auditEvent: AuditEvent = {
-      requestId: req.requestId || 'unknown',
-      userId: req.user?.userId || null,
-      email: req.user?.email || null,
+      user_id: req.user?.userId || null,
       action: deriveAction(req.method, req.originalUrl),
-      method: req.method,
-      path: req.originalUrl,
-      statusCode: res.statusCode,
-      ip: (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim()
+      entite: 'api-gateway',
+      details: JSON.stringify({
+        requestId: req.requestId || 'unknown',
+        email: req.user?.email || null,
+        method: req.method,
+        path: req.originalUrl,
+        statusCode: res.statusCode,
+        duration,
+        metadata: {
+          contentLength: res.getHeader('content-length'),
+          routeService: req.routeConfig?.path,
+        },
+      }),
+      ip_address: (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim()
         || req.ip
         || 'unknown',
-      userAgent: req.headers['user-agent'] || 'unknown',
-      timestamp: new Date().toISOString(),
-      duration,
-      metadata: {
-        contentLength: res.getHeader('content-length'),
-        routeService: req.routeConfig?.path,
-      },
+      user_agent: req.headers['user-agent'] || 'unknown',
+      horodatage: new Date().toISOString(),
     };
 
     // Fire-and-forget: publish to RabbitMQ

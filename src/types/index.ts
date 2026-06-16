@@ -99,18 +99,14 @@ export interface ServiceRouteOverride {
 // ─── Audit Event (published to RabbitMQ) ─────────────────────────────────────
 
 export interface AuditEvent {
-  requestId: string;
-  userId: string | null;
-  email: string | null;
+  user_id?: string | null;
   action: string;
-  method: string;
-  path: string;
-  statusCode: number;
-  ip: string;
-  userAgent: string;
-  timestamp: string;
-  duration: number;
-  metadata?: Record<string, unknown>;
+  entite: string;
+  entite_id?: string | null;
+  details?: string | null;
+  ip_address?: string | null;
+  user_agent?: string | null;
+  horodatage: string;
 }
 
 // ─── Health Check ────────────────────────────────────────────────────────────

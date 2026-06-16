@@ -21,6 +21,10 @@ export async function publishAuditEvent(event: AuditEvent): Promise<void> {
     }
 
     const message = Buffer.from(JSON.stringify(event));
+    let parsedDetails: any = {};
+    try {
+      if (event.details) parsedDetails = JSON.parse(event.details);
+    } catch (e) {}
 
     channel.publish(
       config.rabbitmqAuditExchange,
@@ -31,21 +35,26 @@ export async function publishAuditEvent(event: AuditEvent): Promise<void> {
         contentType: 'application/json',
         timestamp: Date.now(),
         headers: {
-          'x-request-id': event.requestId,
+          'x-request-id': parsedDetails.requestId || 'unknown',
           'x-source': 'api-gateway',
         },
       },
     );
 
     logger.debug('Audit event published to RabbitMQ', {
-      requestId: event.requestId,
+      requestId: parsedDetails.requestId,
       action: event.action,
-      path: event.path,
+      path: parsedDetails.path,
     });
   } catch (error) {
     // Never let audit publishing failure affect the request
+    let reqId = 'unknown';
+    try {
+      if (event.details) reqId = JSON.parse(event.details).requestId || 'unknown';
+    } catch(e) {}
+    
     logger.error('Failed to publish audit event to RabbitMQ', {
-      requestId: event.requestId,
+      requestId: reqId,
       error: error instanceof Error ? error.message : error,
     });
   }
