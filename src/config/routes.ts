@@ -1722,8 +1722,8 @@ export const routesConfig: RoutesConfig = {
       path: '/ai',
       auth: true,
       pathRewrite: {
-        '^/api/v1/ai/(.*)$': '/$1',
-        '^/api/v1/ai$': '/',
+        '^/api/v1/ai/(.*)$': '/ai/$1',
+        '^/api/v1/ai$': '/ai',
       },
       description: 'AI-assisted features (CDC draft generation)',
       routes: [],
