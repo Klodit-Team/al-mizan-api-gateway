@@ -4,9 +4,12 @@ import logger from '../utils/logger';
 
 interface AuthMeResponse {
   id?: string;
+  userId?: string;
   email?: string;
   role?: string;
   userType?: string;
+  iat?: number;
+  exp?: number;
   user?: {
     userId?: string;
     id?: string;
@@ -86,7 +89,6 @@ export async function validateAccessToken(
     }
 
     const data = await response.json() as AuthMeResponse;
-    // FIX: Safely extract identity whether it's wrapped in 'user' or flat
     const user = data.user || data;
     const userId = user.userId || user.id;
 
