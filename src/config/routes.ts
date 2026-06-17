@@ -363,6 +363,8 @@ export const routesConfig: RoutesConfig = {
         '^/api/v1/appels-offres/([^/]+)/criteres-eligibilite$': '/api/v1/appels-offres/$1/criteres-eligibilite',
         '^/api/v1/appels-offres/([^/]+)/statut$': '/api/v1/appels-offres/$1/statut',
         '^/api/v1/appels-offres/([^/]+)/cdc/download$': '/api/v1/appels-offres/$1/cdc/download',
+        '^/api/v1/appels-offres/([^/]+)/cdc$': '/api/v1/appels-offres/$1/cdc',
+        '^/api/v1/appels-offres/gre-a-gre$': '/api/v1/appels-offres/gre-a-gre',
         '^/api/v1/appels-offres$': '/api/v1/appels-offres',
         '^/api/v1/appels-offres/(.*)$': '/api/v1/appels-offres/$1',
       },
@@ -493,6 +495,13 @@ export const routesConfig: RoutesConfig = {
           auth: true,
           roles: [Role.SERVICE_CONTRACTANT],
           description: 'Update tender status',
+        },
+        {
+          path: '/gre-a-gre',
+          method: 'GET',
+          auth: true,
+          roles: [Role.SERVICE_CONTRACTANT, Role.CONTROLEUR, Role.ADMIN],
+          description: 'List all gré-à-gré demandes (paginated, with filters)',
         },
         {
           path: '/:id/gre-a-gre/soumettre',
@@ -1283,6 +1292,13 @@ export const routesConfig: RoutesConfig = {
           auth: true,
           roles: [Role.MEMBRE_COMMISSION, Role.CONTROLEUR, Role.ADMIN],
           description: 'Demarrer opening session',
+        },
+        {
+          path: '/:id/ouvrir-plis',
+          method: 'POST',
+          auth: true,
+          roles: [Role.MEMBRE_COMMISSION, Role.CONTROLEUR, Role.ADMIN],
+          description: 'Ouvrir les plis (vérification quorum + émission PLIS_OUVERTS)',
         },
         {
           path: '/:id/terminer',
