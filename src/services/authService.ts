@@ -3,8 +3,13 @@ import { Role, Session } from '../types';
 import logger from '../utils/logger';
 
 interface AuthMeResponse {
+  id?: string;
+  email?: string;
+  role?: string;
+  userType?: string;
   user?: {
     userId?: string;
+    id?: string;
     email?: string;
     iat?: number;
     exp?: number;
@@ -81,9 +86,11 @@ export async function validateAccessToken(
     }
 
     const data = await response.json() as AuthMeResponse;
-    const user = data.user;
+    // FIX: Safely extract identity whether it's wrapped in 'user' or flat
+    const user = data.user || data;
+    const userId = user.userId || user.id;
 
-    if (!user?.userId || !user.email) {
+    if (!userId || !user.email) {
       logger.warn('Auth service returned malformed identity payload');
       return null;
     }
@@ -100,7 +107,7 @@ export async function validateAccessToken(
     const resolvedRole = normalizeRole(user.role) ?? normalizeRole(user.userType);
 
     return {
-      userId: user.userId,
+      userId: userId,
       email: user.email,
       roles: resolvedRole ? [resolvedRole] : [],
       permissions: [],

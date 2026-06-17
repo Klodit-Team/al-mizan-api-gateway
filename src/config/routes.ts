@@ -228,7 +228,7 @@ export const routesConfig: RoutesConfig = {
       description: 'Tender lifecycle, lots, CDC, criteria, attribution',
       routes: [
         {
-          path: '/',
+          path: '',
           method: 'GET',
           auth: false,
           public: true,
@@ -546,14 +546,14 @@ export const routesConfig: RoutesConfig = {
       description: 'Electronic bid submission with E2EE',
       routes: [
         {
-          path: '/',
+          path: '',
           method: 'POST',
           auth: true,
           roles: [Role.OPERATEUR_ECONOMIQUE],
           description: 'Create submission draft',
         },
         {
-          path: '/',
+          path: '',
           method: 'GET',
           auth: true,
           roles: [Role.OPERATEUR_ECONOMIQUE],

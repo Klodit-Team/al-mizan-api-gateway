@@ -26,18 +26,29 @@ export async function fetchUserRoles(userId: string): Promise<Role[] | null> {
       return null;
     }
 
-    const data = await response.json() as Array<{
-      role?: {
-        name?: string;
-      };
-    }>;
+    const data = await response.json() as Array<any>;
 
     if (!Array.isArray(data)) {
       return null;
     }
 
+    // FIX: Since the endpoint only returns { roleId: "..." }, we fetch the dictionary to map names.
+    const rolesUrl = `${config.usersServiceUrl}/api/v1/roles`;
+    const rolesResponse = await fetch(rolesUrl, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json', 'X-Internal-Service': 'api-gateway' },
+    });
+
+    let roleMap = new Map();
+    if (rolesResponse.ok) {
+      const allRoles = await rolesResponse.json() as any[];
+      if (Array.isArray(allRoles)) {
+        roleMap = new Map(allRoles.map(r => [r.id, r.name]));
+      }
+    }
+
     const roles = data
-      .map((item) => item.role?.name)
+      .map((item) => item.role?.name || roleMap.get(item.roleId) || roleMap.get(item.role_id))
       .filter((name): name is Role => !!name && Object.values(Role).includes(name as Role));
 
     return roles;
@@ -69,8 +80,6 @@ export async function fetchUserPermissions(userId: string): Promise<string[] | n
       return null;
     }
 
-    // Users service does not currently expose fine-grained permissions.
-    // Return an empty array to keep auth flow consistent.
     return [];
   } catch (error) {
     logger.error('Failed to fetch user permissions from users service', {
