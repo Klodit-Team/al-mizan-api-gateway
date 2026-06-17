@@ -694,8 +694,16 @@ export const routesConfig: RoutesConfig = {
           roles: [Role.OPERATEUR_ECONOMIQUE, Role.ADMIN],
           description: 'Get public key for an appel d\'offre',
         },
+        {
+          path: '/:aoId/fragments',
+          method: 'GET',
+          auth: true,
+          roles: [Role.MEMBRE_COMMISSION, Role.ADMIN],
+          description: 'Get Shamir key fragments for an appel d\'offre',
+        },
       ],
     },
+
 
     // ─── Documents Service ───────────────────────────────────────────────────
     documents: {
