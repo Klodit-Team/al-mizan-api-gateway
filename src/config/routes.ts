@@ -568,6 +568,7 @@ export const routesConfig: RoutesConfig = {
             Role.MEMBRE_COMMISSION,
             Role.ADMIN,
             Role.CONTROLEUR,
+            Role.SERVICE_CONTRACTANT,
           ],
           description: 'Get one submission details',
         },
