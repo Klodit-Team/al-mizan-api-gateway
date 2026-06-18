@@ -1294,7 +1294,7 @@ export const routesConfig: RoutesConfig = {
           path: '/:id',
           method: 'GET',
           auth: true,
-          roles: [Role.ADMIN, Role.CONTROLEUR, Role.MEMBRE_COMMISSION, Role.OPERATEUR_ECONOMIQUE],
+          roles: [Role.ADMIN, Role.CONTROLEUR, Role.MEMBRE_COMMISSION, Role.OPERATEUR_ECONOMIQUE, Role.SERVICE_CONTRACTANT],
           description: 'Detail d un recours',
         },
         {
