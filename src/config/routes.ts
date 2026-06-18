@@ -361,6 +361,13 @@ export const routesConfig: RoutesConfig = {
           description: 'List all gré-à-gré demandes (paginated, with filters)',
         },
         {
+          path: '/gre-a-gre/:demandeId',
+          method: 'GET',
+          auth: true,
+          roles: [Role.CONTROLEUR, Role.ADMIN],
+          description: 'Get sole-source request details',
+        },
+        {
           path: '/:id/gre-a-gre/soumettre',
           method: 'POST',
           auth: true,
@@ -371,7 +378,7 @@ export const routesConfig: RoutesConfig = {
           path: '/gre-a-gre/:demandeId/valider',
           method: 'PATCH',
           auth: true,
-          roles: [Role.CONTROLEUR],
+          roles: [Role.CONTROLEUR, Role.ADMIN],
           description: 'Validate/reject sole-source request',
         },
         {
