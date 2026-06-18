@@ -542,6 +542,7 @@ export const routesConfig: RoutesConfig = {
         Role.MEMBRE_COMMISSION,
         Role.ADMIN,
         Role.CONTROLEUR,
+        Role.SERVICE_CONTRACTANT,
       ],
       description: 'Electronic bid submission with E2EE',
       routes: [
