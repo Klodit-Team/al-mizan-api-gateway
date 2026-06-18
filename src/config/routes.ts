@@ -441,14 +441,14 @@ export const routesConfig: RoutesConfig = {
           path: '/attributions',
           method: 'GET',
           auth: true,
-          roles: [Role.SERVICE_CONTRACTANT, Role.CONTROLEUR, Role.ADMIN],
+          roles: [Role.SERVICE_CONTRACTANT, Role.CONTROLEUR, Role.ADMIN, Role.OPERATEUR_ECONOMIQUE],
           description: 'List attribution decisions',
         },
         {
           path: '/attributions/:id',
           method: 'GET',
           auth: true,
-          roles: [Role.SERVICE_CONTRACTANT, Role.CONTROLEUR, Role.ADMIN],
+          roles: [Role.SERVICE_CONTRACTANT, Role.CONTROLEUR, Role.ADMIN, Role.OPERATEUR_ECONOMIQUE],
           description: 'Get an attribution decision',
         },
         {
